@@ -6,16 +6,15 @@ from dino_runner.utils.constants import BIRD
 
 
 class ObstacleManager:
-    DEATH_COUNT = 0
     def __init__(self):
         self.obstacles = []
 
     def update(self, game):
         if len(self.obstacles) == 0:
-
-            if random.randint(0,2)==1:
+            rand = random.randint(0,2)
+            if rand == 1:
                 self.obstacles.append(Cactus("SMALL"))
-            elif random.randint(0,2)==0:
+            elif rand == 0:
                 self.obstacles.append(Cactus("LARGE"))
             else:
                 self.obstacles.append(Bird(BIRD))
@@ -23,10 +22,14 @@ class ObstacleManager:
         for obstacle in self.obstacles:
             obstacle.update(game.game_speed, self.obstacles)
             if game.player.dino_rect.colliderect(obstacle.rect):
-                self.DEATH_COUNT += 1
-                pygame.time.delay(1000)
-                game.playing = False
-                break
+                if not game.player.shield:
+                    pygame.time.delay(1000)
+                    game.death_count +=1
+                    game.points -= 2
+                    game.playing = False
+                    break
+                else:
+                    self.obstacles.remove(obstacle)
 
     def draw(self, screen):
         for obstacle in self.obstacles:
